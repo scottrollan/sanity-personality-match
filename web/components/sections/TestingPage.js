@@ -27,8 +27,9 @@ class TestingPage extends Component {
     this.setState({ [event.target.name]: Number(event.target.value) });
   };
   selectImageHandler = event => {
-    this.setState({ selectedFile: event.target.files[0] });
-    console.log(this.state.selectedFile)
+      console.log(event.target.files[0].name)
+    // this.setState({ selectedFile: event.target.files[0] });
+    // console.log(this.state.selectedFile)
   };
 
   //   uploadImageHandler = () => {};
@@ -55,7 +56,7 @@ class TestingPage extends Component {
       useCdn: true // `false` if you want to ensure fresh data
     });
     const doc = {
-        _type: 'employee',
+        _type: 'person',
         fullName: this.state.name,
         image: this.state.selectedFile,
         organization: this.state.organization,
