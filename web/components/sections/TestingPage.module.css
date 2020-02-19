@@ -1,0 +1,79 @@
+@import "../../styles/custom-media.css";
+@import "../../styles/custom-properties.css";
+
+.root {
+  padding: 0 0;
+
+  /* @media (--media-min-medium) {
+    padding: 2rem 0;
+  } */
+}
+
+.landing {
+  background: linear-gradient(transparent, lightgray);
+  width: 100%;
+  max-width: var(--width-small);
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  box-sizing: border-box;
+  border-radius: 0 0 1em 1em;
+}
+.label {
+  font-size: var(--font-title3-size);
+  line-height: var(--font-micro-line-height);
+  /* text-transform: uppercase; */
+  letter-spacing: 0.5px;
+  margin-top: 1em;
+}
+
+.heading {
+  font-size: var(--font-title1-size);
+  line-height: var(--font-title1-line-height);
+  /* text-transform: uppercase; */
+  margin: 0.25em 0;
+}
+
+.label + .heading {
+  margin-top: 0.25em;
+}
+.break {
+  width: 100%;
+  color: transparent;
+  height: 0.5px;
+  background-image: linear-gradient(to right, #888888, #bbbbbb, transparent);
+  margin: 0;
+  padding: 0;
+}
+label {
+    margin-top: 5em;
+}
+#name,
+#title,
+#organization {
+    width: 80%;
+    margin-right: 20%;
+}
+#photo {
+    margin: 2% 15px;
+}
+/* button {
+    font-size: var(--font-title3-size);
+    line-height: var(--font-title4-line-height);
+    letter-spacing: 0.5px;
+    margin: 1em 0;
+    border-radius: .3em;
+    background:#007bff;
+    color: whitesmoke
+}
+button:hover {
+    color: #333333;
+    background-image: linear-gradient(#007bff, #008b77)
+
+} */
+.question {
+    text-decoration: bold;
+    margin: 5px 0;
+}
+select {
+    margin-bottom: 15px;
+}
