@@ -1,5 +1,8 @@
 import React, { Component } from "react";
 import styles from "./TestingPage.module.css";
+import sanityClient from "@sanity/client";
+import { basename } from "path";
+// import { createReadStream } from "fs";
 
 class TestingPage extends Component {
   state = {
@@ -7,6 +10,7 @@ class TestingPage extends Component {
     title: "",
     organization: "",
     selectedFile: null,
+    imageSrc: null,
     score: 0,
     val1: 0,
     val2: 0,
@@ -21,18 +25,23 @@ class TestingPage extends Component {
   };
 
   changeValueHandler = event => {
+    const val = event.target.name;
     this.setState({ [event.target.name]: event.target.value });
+    setTimeout(() => console.log(this.state), 500);
   };
   changeNumberValueHandler = event => {
     this.setState({ [event.target.name]: Number(event.target.value) });
   };
   selectImageHandler = event => {
-      console.log(event.target.files[0].name)
     // this.setState({ selectedFile: event.target.files[0] });
-    // console.log(this.state.selectedFile)
+    this.setState({
+      selectedFile: event.target.files[0],
+      imageSrc: URL.createObjectURL(event.target.files[0]) //creates browswer rendered http address for image
+    });
+    setTimeout(() => console.log(this.state.selectedFile), 700);
   };
 
-  //   uploadImageHandler = () => {};
+  uploadImageHandler = () => {};
 
   handleSubmit = () => {
     const aggregateScore =
@@ -46,33 +55,59 @@ class TestingPage extends Component {
       this.state.val8 +
       this.state.val9 +
       this.state.val10;
-    this.setState({score: aggregateScore});
+    this.setState({ score: aggregateScore });
 
+    console.log("Score: " + this.state.score)
+
+    const image = this.state.imageSrc;
+    const imageData = this.state.selectedFile;
     const sanityClient = require("@sanity/client");
     const client = sanityClient({
       projectId: "ilens9wa",
       dataset: "production",
-      token: "skc22oiHgTj5u9FyzM7t9n5FM1HFyndCDAsvygxyEQ6vpoAFQJFgbAGTeZIrNJh5VK97TL9Fd701rMIzn9okBw841vPSXhxYW9S6AudNgFISUdA8tKx6Amvf05WJfZFujjsC2c2o1AkbR4IY4HR9Gu3G1F8bsDrLS9muOnfxLqQf7t1twGd9", // or leave blank to be anonymous user
+      token:
+        "skc22oiHgTj5u9FyzM7t9n5FM1HFyndCDAsvygxyEQ6vpoAFQJFgbAGTeZIrNJh5VK97TL9Fd701rMIzn9okBw841vPSXhxYW9S6AudNgFISUdA8tKx6Amvf05WJfZFujjsC2c2o1AkbR4IY4HR9Gu3G1F8bsDrLS9muOnfxLqQf7t1twGd9", // or leave blank to be anonymous user
       useCdn: true // `false` if you want to ensure fresh data
     });
-    const doc = {
-        _type: 'person',
-        fullName: this.state.name,
-        image: this.state.selectedFile,
-        organization: this.state.organization,
-        score: this.state.score,
-        title: this.state.title
-      }
-      
-      client.create(doc).then(res => {
-        console.log(`Employee was created, document ID is ${res._id}`)
+
+    client.assets
+      .upload("image", image, { contentType: imageData.type, filename: imageData.name })
+      .then(document => {
+        console.log("The image was uploaded!", document);
       })
+      .catch(error => {
+        console.error("Upload failed:", error.message);
+      });
+
+    // const doc = {
+    //   _type: "person",
+    //   fullName: this.state.name,
+    //   image: this.state.selectedFile,
+    //   organization: this.state.organization,
+    //   score: this.state.score,
+    //   title: this.state.title
+    // };
+
+    // client.create(doc).then(res => {
+    //   console.log(`Employee was created, document ID is ${res._id}`);
+    // });
   };
 
   render() {
     return (
       <div className={styles.root}>
         <section className={styles.landing}>
+          <div
+            className={styles.backImage}
+            style={{
+              backgroundImage:
+                this.state.selectedFile != null ? `url("${this.state.imageSrc}")` : null,
+              backgroundRepeat: "no-repeat",
+              backgroundSize: "100%"
+            }}
+          >
+            <div className={styles.backMask}></div>
+          </div>
           <p className={styles.heading}>Survey Questions</p>
           <form>
             <div>
@@ -116,8 +151,8 @@ class TestingPage extends Component {
                 required
                 onChange={() => this.selectImageHandler(event)}
               ></input>
+              {/* <button onClick={this.uploadImageHandler}>Upload Image</button> */}
             </label>
-            {/* <button onClick={this.uploadImageHandler}>Upload Image</button> */}
             <hr className={styles.break} />
             <p className={styles.question}>&bull; I am not a competitive person.</p>
             <select
@@ -340,9 +375,11 @@ class TestingPage extends Component {
               <option value="9">9</option>
               <option value="10">10 (strongly agree)</option>
             </select>
-            <button type="submit" onClick={this.handleSubmit}>
-              CLICK
-            </button>
+            <div>
+              <button  onClick={this.handleSubmit}>
+                CLICK
+              </button>
+            </div>
           </form>
         </section>
       </div>
