@@ -30,67 +30,54 @@ class TestingPage extends Component {
     setTimeout(() => console.log(this.state), 500);
   };
   changeNumberValueHandler = event => {
-    this.setState({ [event.target.name]: Number(event.target.value) });
+    this.setState({ [event.target.name]: Number(event.target.value) })
+    const aggregateScore =
+    this.state.val1 +
+    this.state.val2 +
+    this.state.val3 +
+    this.state.val4 +
+    this.state.val5 +
+    this.state.val6 +
+    this.state.val7 +
+    this.state.val8 +
+    this.state.val9 +
+    this.state.val10;
+  this.setState({ score: aggregateScore });
   };
+
   selectImageHandler = event => {
-    // this.setState({ selectedFile: event.target.files[0] });
     this.setState({
       selectedFile: event.target.files[0],
       imageSrc: URL.createObjectURL(event.target.files[0]) //creates browswer rendered http address for image
     });
-    setTimeout(() => console.log(this.state.selectedFile), 700);
   };
 
   uploadImageHandler = () => {};
 
-  handleSubmit = () => {
-    const aggregateScore =
-      this.state.val1 +
-      this.state.val2 +
-      this.state.val3 +
-      this.state.val4 +
-      this.state.val5 +
-      this.state.val6 +
-      this.state.val7 +
-      this.state.val8 +
-      this.state.val9 +
-      this.state.val10;
-    this.setState({ score: aggregateScore });
-
-    console.log("Score: " + this.state.score)
-
-    const image = this.state.imageSrc;
-    const imageData = this.state.selectedFile;
+  sendData = () => {
+    const user = this.state.name.replace(/\s+/g, '-').replace(/[^a-zA-Z-]/g, '').toLowerCase() //Converts "Barry S. Rollan" to "barry-s-rollan"
     const sanityClient = require("@sanity/client");
     const client = sanityClient({
       projectId: "ilens9wa",
       dataset: "production",
       token:
-        "skc22oiHgTj5u9FyzM7t9n5FM1HFyndCDAsvygxyEQ6vpoAFQJFgbAGTeZIrNJh5VK97TL9Fd701rMIzn9okBw841vPSXhxYW9S6AudNgFISUdA8tKx6Amvf05WJfZFujjsC2c2o1AkbR4IY4HR9Gu3G1F8bsDrLS9muOnfxLqQf7t1twGd9", // or leave blank to be anonymous user
+        // "",
+        "sk5jdLyEljqSap2H9cSqGksghheLcsYQehRq7uqSraIi2ICgIpOjGkIBE6LBMkfUmAvB2nnoiyFLWfZiqvwLLxLrgh5H8ZHbSX3LROiSsAcGQ81IkH0yfjIGLRBPFFg0dxPFeamuJiLG36Od9A2hzZiHD7QQpK3bEoCwUAu4fslRxZqsFCrj", // or leave blank to be anonymous user
       useCdn: true // `false` if you want to ensure fresh data
     });
-
-    client.assets
-      .upload("image", image, { contentType: imageData.type, filename: imageData.name })
-      .then(document => {
-        console.log("The image was uploaded!", document);
+    const doc = {
+        _id: user,
+        _type: 'person',
+        fullName: this.state.name,
+        image: this.state.imageSrc,
+        organization: this.state.organization,
+        score: this.state.score,
+        title: this.state.title
+      }
+      
+      client.create(doc).then(res => {
+        console.log(`Person was created, document ID is ${res._id}`)
       })
-      .catch(error => {
-        console.error("Upload failed:", error.message);
-      });
-
-    // const doc = {
-    //   _type: "person",
-    //   fullName: this.state.name,
-    //   image: this.state.selectedFile,
-    //   organization: this.state.organization,
-    //   score: this.state.score,
-    //   title: this.state.title
-    // };
-
-    // client.create(doc).then(res => {
-    //   console.log(`Employee was created, document ID is ${res._id}`);
-    // });
   };
 
   render() {
@@ -375,12 +362,9 @@ class TestingPage extends Component {
               <option value="9">9</option>
               <option value="10">10 (strongly agree)</option>
             </select>
-            <div>
-              <button  onClick={this.handleSubmit}>
-                CLICK
-              </button>
-            </div>
+            <div></div>
           </form>
+          <button onClick={() => this.sendData()}>CLICK</button>
         </section>
       </div>
     );
