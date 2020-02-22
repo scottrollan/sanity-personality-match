@@ -1,8 +1,7 @@
 import React, { Component } from "react";
 import styles from "./TestingPage.module.css";
-import sanityClient from "@sanity/client";
-import { basename } from "path";
-// import { createReadStream } from "fs";
+import TenOptions from "./TenOptions";
+import PersonModal from "./PersonModal";
 
 class TestingPage extends Component {
   state = {
@@ -11,6 +10,7 @@ class TestingPage extends Component {
     organization: "",
     selectedFile: null,
     imageSrc: null,
+    imageRef: null,
     score: 0,
     val1: 0,
     val2: 0,
@@ -21,28 +21,32 @@ class TestingPage extends Component {
     val7: 0,
     val8: 0,
     val9: 0,
-    val10: 0
+    val10: 0,
+    modalDisplay: "flex"
   };
 
   changeValueHandler = event => {
     const val = event.target.name;
     this.setState({ [event.target.name]: event.target.value });
-    setTimeout(() => console.log(this.state), 500);
   };
   changeNumberValueHandler = event => {
-    this.setState({ [event.target.name]: Number(event.target.value) })
+    this.setState({ [event.target.name]: Number(event.target.value) });
+    setTimeout(() => this.tallyScore(), 500);
+  };
+
+  tallyScore = () => {
     const aggregateScore =
-    this.state.val1 +
-    this.state.val2 +
-    this.state.val3 +
-    this.state.val4 +
-    this.state.val5 +
-    this.state.val6 +
-    this.state.val7 +
-    this.state.val8 +
-    this.state.val9 +
-    this.state.val10;
-  this.setState({ score: aggregateScore });
+      this.state.val1 +
+      this.state.val2 +
+      this.state.val3 +
+      this.state.val4 +
+      this.state.val5 +
+      this.state.val6 +
+      this.state.val7 +
+      this.state.val8 +
+      this.state.val9 +
+      this.state.val10;
+    this.setState({ score: aggregateScore });
   };
 
   selectImageHandler = event => {
@@ -52,10 +56,8 @@ class TestingPage extends Component {
     });
   };
 
-  uploadImageHandler = () => {};
-
-  sendData = () => {
-    const user = this.state.name.replace(/\s+/g, '-').replace(/[^a-zA-Z-]/g, '').toLowerCase() //Converts "Barry S. Rollan" to "barry-s-rollan"
+  uploadImageHandler = blob => {
+    const imgData = this.state.selectedFile;
     const sanityClient = require("@sanity/client");
     const client = sanityClient({
       projectId: "ilens9wa",
@@ -63,26 +65,63 @@ class TestingPage extends Component {
       token:
         // "",
         "sk5jdLyEljqSap2H9cSqGksghheLcsYQehRq7uqSraIi2ICgIpOjGkIBE6LBMkfUmAvB2nnoiyFLWfZiqvwLLxLrgh5H8ZHbSX3LROiSsAcGQ81IkH0yfjIGLRBPFFg0dxPFeamuJiLG36Od9A2hzZiHD7QQpK3bEoCwUAu4fslRxZqsFCrj", // or leave blank to be anonymous user
-      useCdn: true // `false` if you want to ensure fresh data
+      useCdn: false // `false` if you want to ensure fresh data
     });
-    const doc = {
-        _id: user,
-        _type: 'person',
-        fullName: this.state.name,
-        image: this.state.imageSrc,
-        organization: this.state.organization,
-        score: this.state.score,
-        title: this.state.title
-      }
-      
-      client.create(doc).then(res => {
-        console.log(`Person was created, document ID is ${res._id}`)
+    client.assets
+      .upload("image", blob, { contentType: imgData.type, filename: imgData.name })
+      .then(document => {
+        console.log("The image was uploaded!", document);
+        this.setState({ imageRef: document._id });
+        this.sendData();
       })
+      .catch(error => {
+        console.error("Upload failed: ", error.message);
+      });
   };
 
+  sendData = () => {    
+    const user = this.state.name
+      .replace(/\s+/g, "-")
+      .replace(/[^a-zA-Z-]/g, "")
+      .toLowerCase(); //Converts "Barry S. Rollan" to "barry-s-rollan"
+    const sanityClient = require("@sanity/client");
+    const client = sanityClient({
+      projectId: "ilens9wa",
+      dataset: "production",
+      token:
+        "sk5jdLyEljqSap2H9cSqGksghheLcsYQehRq7uqSraIi2ICgIpOjGkIBE6LBMkfUmAvB2nnoiyFLWfZiqvwLLxLrgh5H8ZHbSX3LROiSsAcGQ81IkH0yfjIGLRBPFFg0dxPFeamuJiLG36Od9A2hzZiHD7QQpK3bEoCwUAu4fslRxZqsFCrj", // or leave blank to be anonymous user
+      useCdn: false // `false` if you want to ensure fresh data
+    });
+    const doc = {
+      _id: user,
+      _type: "person",
+      fullName: this.state.name,
+      image: {
+        asset: {
+          _ref: this.state.imageRef,
+          _type: "reference"
+        }
+      },
+      organization: this.state.organization,
+      score: this.state.score,
+      title: this.state.title
+    };
+
+    client.createOrReplace(doc).then(res => {
+      console.log(`Person was created, document ID is ${res._id}`);
+    });
+    
+  };
+  closeModal = () => {
+    this.setState({ modalDisplay: "none" });
+  };
   render() {
     return (
       <div className={styles.root}>
+        <PersonModal 
+            closeModal={this.closeModal} 
+            display={this.state.modalDisplay} 
+        />
         <section className={styles.landing}>
           <div
             className={styles.backImage}
@@ -138,233 +177,80 @@ class TestingPage extends Component {
                 required
                 onChange={() => this.selectImageHandler(event)}
               ></input>
-              {/* <button onClick={this.uploadImageHandler}>Upload Image</button> */}
+              {/* <button onClick={() => this.uploadImageHandler(this.state.selectedFile)} required>
+                Upload Image
+              </button> */}
             </label>
             <hr className={styles.break} />
             <p className={styles.question}>&bull; I am not a competitive person.</p>
-            <select
-              onChange={() => this.changeNumberValueHandler(event)}
-              required
+
+            <TenOptions
+              changeNumberValueHandler={event => this.changeNumberValueHandler(event)}
               name="val1"
-              defaultValue={0}
-            >
-              <option value="0" disabled>
-                Select an option
-              </option>
-              <option value="1">1 (strongly disagree)</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-              <option value="4">4</option>
-              <option value="5">5</option>
-              <option value="6">6</option>
-              <option value="7">7</option>
-              <option value="8">8</option>
-              <option value="9">9</option>
-              <option value="10">10 (strongly agree)</option>
-            </select>
+            />
+
             <p className={styles.question}>
               &bull; Generally, I enjoy just chatting with others over having serious discussions.
             </p>
-            <select
-              onChange={() => this.changeNumberValueHandler(event)}
-              required
+            <TenOptions
+              changeNumberValueHandler={event => this.changeNumberValueHandler(event)}
               name="val2"
-              defaultValue="0"
-            >
-              <option value="0" disabled>
-                Select an option
-              </option>
-              <option value="1">1 (strongly disagree)</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-              <option value="4">4</option>
-              <option value="5">5</option>
-              <option value="6">6</option>
-              <option value="7">7</option>
-              <option value="8">8</option>
-              <option value="9">9</option>
-              <option value="10">10 (strongly agree)</option>
-            </select>{" "}
+            />
             <p className={styles.question}>&bull; I am often the life of the party.</p>
-            <select
-              onChange={() => this.changeNumberValueHandler(event)}
-              required
+            <TenOptions
+              changeNumberValueHandler={event => this.changeNumberValueHandler(event)}
               name="val3"
-              defaultValue="0"
-            >
-              <option disabled value="0">
-                Select an option
-              </option>
-              <option value="1">1 (strongly disagree)</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-              <option value="4">4</option>
-              <option value="5">5</option>
-              <option value="6">6</option>
-              <option value="7">7</option>
-              <option value="8">8</option>
-              <option value="9">9</option>
-              <option value="10">10 (strongly agree)</option>
-            </select>{" "}
+            />
             <p className={styles.question}>
               &bull; I hardly ever worry about what might happen in the future.
             </p>
-            <select
-              onChange={() => this.changeNumberValueHandler(event)}
-              required
+            <TenOptions
+              changeNumberValueHandler={event => this.changeNumberValueHandler(event)}
               name="val4"
-              defaultValue="0"
-            >
-              <option disabled value="0">
-                Select an option
-              </option>
-              <option value="1">1 (strongly disagree)</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-              <option value="4">4</option>
-              <option value="5">5</option>
-              <option value="6">6</option>
-              <option value="7">7</option>
-              <option value="8">8</option>
-              <option value="9">9</option>
-              <option value="10">10 (strongly agree)</option>
-            </select>{" "}
+            />
             <p className={styles.question}>
               &bull; Generally, I prefer watching videos, tv or movies over more physicl activities
               (like walking, hiking or playing a sport).{" "}
             </p>
-            <select
-              onChange={() => this.changeNumberValueHandler(event)}
-              required
+            <TenOptions
+              changeNumberValueHandler={event => this.changeNumberValueHandler(event)}
               name="val5"
-              defaultValue="0"
-            >
-              <option disabled value="0">
-                Select an option
-              </option>
-              <option value="1">1 (strongly disagree)</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-              <option value="4">4</option>
-              <option value="5">5</option>
-              <option value="6">6</option>
-              <option value="7">7</option>
-              <option value="8">8</option>
-              <option value="9">9</option>
-              <option value="10">10 (strongly agree)</option>
-            </select>{" "}
+            />
             <p className={styles.question}>
               &bull; I enjoy being the focus of attention in social settings. .
             </p>
-            <select
-              onChange={() => this.changeNumberValueHandler(event)}
-              required
+            <TenOptions
+              changeNumberValueHandler={event => this.changeNumberValueHandler(event)}
               name="val6"
-              defaultValue="0"
-            >
-              <option disabled value="0">
-                Select an option
-              </option>
-              <option value="1">1 (strongly disagree)</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-              <option value="4">4</option>
-              <option value="5">5</option>
-              <option value="6">6</option>
-              <option value="7">7</option>
-              <option value="8">8</option>
-              <option value="9">9</option>
-              <option value="10">10 (strongly agree)</option>
-            </select>{" "}
+            />
             <p className={styles.question}>&bull; Discussing my feelings comes easily to me.</p>
-            <select
-              onChange={() => this.changeNumberValueHandler(event)}
-              required
+            <TenOptions
+              changeNumberValueHandler={event => this.changeNumberValueHandler(event)}
               name="val7"
-              defaultValue="0"
-            >
-              <option disabled value="0">
-                Select an option
-              </option>
-              <option value="1">1 (strongly disagree)</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-              <option value="4">4</option>
-              <option value="5">5</option>
-              <option value="6">6</option>
-              <option value="7">7</option>
-              <option value="8">8</option>
-              <option value="9">9</option>
-              <option value="10">10 (strongly agree)</option>
-            </select>{" "}
+            />
             <p className={styles.question}>&bull; I find it difficult to multi-task. </p>
-            <select
-              onChange={() => this.changeNumberValueHandler(event)}
-              required
+            <TenOptions
+              changeNumberValueHandler={event => this.changeNumberValueHandler(event)}
               name="val8"
-              defaultValue="0"
-            >
-              <option disabled value="0">
-                Select an option
-              </option>
-              <option value="1">1 (strongly disagree)</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-              <option value="4">4</option>
-              <option value="5">5</option>
-              <option value="6">6</option>
-              <option value="7">7</option>
-              <option value="8">8</option>
-              <option value="9">9</option>
-              <option value="10">10 (strongly agree)</option>
-            </select>{" "}
+            />
             <p className={styles.question}>
               &bull; I don't mind sharing personal details with people.
             </p>
-            <select
-              onChange={() => this.changeNumberValueHandler(event)}
-              required
+            <TenOptions
+              changeNumberValueHandler={event => this.changeNumberValueHandler(event)}
               name="val9"
-              defaultValue="0"
-            >
-              <option disabled value="0">
-                Select an option
-              </option>
-              <option value="1">1 (strongly disagree)</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-              <option value="4">4</option>
-              <option value="5">5</option>
-              <option value="6">6</option>
-              <option value="7">7</option>
-              <option value="8">8</option>
-              <option value="9">9</option>
-              <option value="10">10 (strongly agree)</option>
-            </select>
+            />
             <p className={styles.question}>&bull; I have a very active imagination. </p>
-            <select
-              onChange={() => this.changeNumberValueHandler(event)}
-              required
+            <TenOptions
+              changeNumberValueHandler={event => this.changeNumberValueHandler(event)}
               name="val10"
-              defaultValue="0"
-            >
-              <option disabled value="0">
-                Select an option
-              </option>
-              <option value="1">1 (strongly disagree)</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-              <option value="4">4</option>
-              <option value="5">5</option>
-              <option value="6">6</option>
-              <option value="7">7</option>
-              <option value="8">8</option>
-              <option value="9">9</option>
-              <option value="10">10 (strongly agree)</option>
-            </select>
+            />
             <div></div>
           </form>
-          <button onClick={() => this.sendData()}>CLICK</button>
+          <button type="submit" onClick={() => this.uploadImageHandler(this.state.selectedFile)}>
+            CLICK
+          </button>
+          {/* <button onClick={() => {document.getElementById('modal').style.display = "block"}}>Open Modal</button> */}
         </section>
       </div>
     );
