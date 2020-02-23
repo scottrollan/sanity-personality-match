@@ -1,19 +1,30 @@
-import React from 'react'
-import styles from './PersonModal.module.css'
+import React from "react";
+import styles from "./PersonModal.module.css";
 
-const PersonModal = (props) => {
-
-    return (
-        <div className={styles.container} id="modal" style={{ display: props.display }}>
-            <div id={styles.modalContent}>
-                <h4>James T. Kirk</h4>
-                <img src='https://cdn.sanity.io/images/ilens9wa/production/ee2d0e1596931c9de6895c8afb0aac53ffe04e05-611x865.jpg?h=200&fit=max' alt=''></img>
-                <h5>Captain</h5>
-                <h6>U.S.S. Enterprise</h6>
-                <button onClick={props.closeModal}>Close</button>
-            </div>
+const PersonModal = props => {
+  return (
+    <div className={styles.container} id="modal" style={{ display: props.display }}>
+      <div id={styles.modalContent}>
+        <h3>Your Closest Match</h3>
+        <h4>{props.name}</h4>
+        <img
+          src={`https://cdn.sanity.io/images/ilens9wa/production/${props.src}?h=200&fit=max`}
+          alt=""
+        />
+        <h5>{props.title}</h5>
+        <h6>{props.org}</h6>
+        <div className={styles.scoreDiv}>
+          <h6>{props.name}'s personality quotient:</h6> 
+          <h6>{Math.round(props.score * 3.14)}</h6>
         </div>
-    )
-}
+        <div className={styles.scoreDiv}>
+          <h6>Your personality quotient: </h6>
+          <h6> {Math.round(props.myScore * 3.14)} </h6>
+        </div>
+        <button onClick={props.closeModal}>Close</button>
+      </div>
+    </div>
+  );
+};
 
-export default PersonModal
+export default PersonModal;

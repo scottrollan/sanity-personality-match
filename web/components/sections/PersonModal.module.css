@@ -16,7 +16,7 @@
     background: linear-gradient(to bottom, whitesmoke, lightgray);
     text-align: center;
     overflow-x: hidden;
-    overflow-y: scroll;
+    overflow-y: auto;
     height: auto;
     max-height: 92%;
     width: 40%;
@@ -26,6 +26,9 @@
     border-radius: 1em;
     z-index: 99;
 }
-.displayNone {
-    display: none;
+.scoreDiv {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin: 5px 0;
 }

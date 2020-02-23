@@ -22,7 +22,12 @@ class TestingPage extends Component {
     val8: 0,
     val9: 0,
     val10: 0,
-    modalDisplay: "flex"
+    modalDisplay: "none",
+    matchName: '',
+    matchTitle: '',
+    matchOrg: '',
+    matchSrc: '',
+    matchScore: 999
   };
 
   changeValueHandler = event => {
@@ -72,26 +77,18 @@ class TestingPage extends Component {
       .then(document => {
         console.log("The image was uploaded!", document);
         this.setState({ imageRef: document._id });
-        this.sendData();
+        this.sendData(client);
       })
       .catch(error => {
         console.error("Upload failed: ", error.message);
       });
   };
 
-  sendData = () => {    
+  sendData = (client) => {    
     const user = this.state.name
       .replace(/\s+/g, "-")
       .replace(/[^a-zA-Z-]/g, "")
       .toLowerCase(); //Converts "Barry S. Rollan" to "barry-s-rollan"
-    const sanityClient = require("@sanity/client");
-    const client = sanityClient({
-      projectId: "ilens9wa",
-      dataset: "production",
-      token:
-        "sk5jdLyEljqSap2H9cSqGksghheLcsYQehRq7uqSraIi2ICgIpOjGkIBE6LBMkfUmAvB2nnoiyFLWfZiqvwLLxLrgh5H8ZHbSX3LROiSsAcGQ81IkH0yfjIGLRBPFFg0dxPFeamuJiLG36Od9A2hzZiHD7QQpK3bEoCwUAu4fslRxZqsFCrj", // or leave blank to be anonymous user
-      useCdn: false // `false` if you want to ensure fresh data
-    });
     const doc = {
       _id: user,
       _type: "person",
@@ -109,9 +106,33 @@ class TestingPage extends Component {
 
     client.createOrReplace(doc).then(res => {
       console.log(`Person was created, document ID is ${res._id}`);
-    });
-    
+      this.getData(client)
+    });   
   };
+
+  getData = (client) => {
+    let x = this.state.score
+    client.fetch('*[_type == "person"]').then(people => {
+      console.log('Bikes with more than one seat:')
+      people.forEach(p => {
+        if(Math.abs(x - this.state.matchScore)< Math.abs(x - p.score) || p.fullName == this.state.name){
+          null
+        }else{
+          const srcSplit = p.image.asset._ref.split("-")
+          const src = `${srcSplit[1]}-${srcSplit[2]}.${srcSplit[3]}`
+          this.setState({
+            matchName: p.fullName,
+            matchOrg: p.organization,
+            matchScore: p.score,
+            matchSrc: src,
+            matchTitle: p.title
+          })
+        }
+      })
+      this.setState({modalDisplay: 'flex'})
+    })
+  }
+
   closeModal = () => {
     this.setState({ modalDisplay: "none" });
   };
@@ -120,7 +141,13 @@ class TestingPage extends Component {
       <div className={styles.root}>
         <PersonModal 
             closeModal={this.closeModal} 
-            display={this.state.modalDisplay} 
+            display={this.state.modalDisplay}
+            name={this.state.matchName}
+            src={this.state.matchSrc}
+            org={this.state.matchOrg}
+            title={this.state.matchTitle}
+            score={this.state.matchScore}
+            myScore={this.state.score} 
         />
         <section className={styles.landing}>
           <div
