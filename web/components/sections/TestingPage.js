@@ -61,8 +61,15 @@ class TestingPage extends Component {
     });
   };
 
-  uploadImageHandler = blob => {
-    const imgData = this.state.selectedFile;
+  // handleSubmit(e) {
+  //   e.preventDefault()
+  //   this.uploadImageHandler(e, this.state.selectedFile);
+  //   console.log("handleSubmit fired")
+  // }
+
+  uploadImageHandler = (e, blob) => {
+    e.preventDefault()
+    console.log("uploadImageHandler fired")
     const sanityClient = require("@sanity/client");
     const client = sanityClient({
       projectId: "ilens9wa",
@@ -73,7 +80,7 @@ class TestingPage extends Component {
       useCdn: false // `false` if you want to ensure fresh data
     });
     client.assets
-      .upload("image", blob, { contentType: imgData.type, filename: imgData.name })
+      .upload("image", blob, { contentType: blob.type, filename: blob.name })
       .then(document => {
         console.log("The image was uploaded!", document);
         this.setState({ imageRef: document._id });
@@ -84,7 +91,8 @@ class TestingPage extends Component {
       });
   };
 
-  sendData = (client) => {    
+  sendData = (client) => {  
+    console.log("sendData fired")  
     const user = this.state.name
       .replace(/\s+/g, "-")
       .replace(/[^a-zA-Z-]/g, "")
@@ -112,14 +120,16 @@ class TestingPage extends Component {
 
   getData = (client) => {
     let x = this.state.score
+    let y = this.state.name
     client.fetch('*[_type == "person"]').then(people => {
-      console.log('Bikes with more than one seat:')
       people.forEach(p => {
-        if(Math.abs(x - this.state.matchScore)< Math.abs(x - p.score) || p.fullName == this.state.name){
+        const currentScoreOffset = Math.abs(x - this.state.matchScore)
+        const newScoreOffset = Math.abs(x - p.score)
+        if(currentScoreOffset < newScoreOffset || p.fullName == y){ //if == y, you would be match with an earlier entry of the same user
           null
         }else{
           const srcSplit = p.image.asset._ref.split("-")
-          const src = `${srcSplit[1]}-${srcSplit[2]}.${srcSplit[3]}`
+          const src = `${srcSplit[1]}-${srcSplit[2]}.${srcSplit[3]}` //formats '-image-blahblah-400x400-jpg' to 'blahblah-400x400.jpg'
           this.setState({
             matchName: p.fullName,
             matchOrg: p.organization,
@@ -162,7 +172,7 @@ class TestingPage extends Component {
             <div className={styles.backMask}></div>
           </div>
           <p className={styles.heading}>Survey Questions</p>
-          <form>
+          <form  onSubmit={(event) => this.uploadImageHandler(event, this.state.selectedFile)}>
             <div>
               <label htmlFor={styles.name}>
                 Your First and Last Name
@@ -269,15 +279,13 @@ class TestingPage extends Component {
             />
             <p className={styles.question}>&bull; I have a very active imagination. </p>
             <TenOptions
-              changeNumberValueHandler={event => this.changeNumberValueHandler(event)}
+              changeNumberValueHandler={() => this.changeNumberValueHandler(event)}
               name="val10"
             />
-            <div></div>
+            <div>
+            <input type="submit" value="Submit" />
+            </div>
           </form>
-          <button type="submit" onClick={() => this.uploadImageHandler(this.state.selectedFile)}>
-            CLICK
-          </button>
-          {/* <button onClick={() => {document.getElementById('modal').style.display = "block"}}>Open Modal</button> */}
         </section>
       </div>
     );

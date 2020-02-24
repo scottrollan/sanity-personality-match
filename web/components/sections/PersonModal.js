@@ -10,16 +10,17 @@ const PersonModal = props => {
         <img
           src={`https://cdn.sanity.io/images/ilens9wa/production/${props.src}?h=200&fit=max`}
           alt=""
+          style={{ maxWidth: '100%' }}
         />
         <h5>{props.title}</h5>
         <h6>{props.org}</h6>
         <div className={styles.scoreDiv}>
-          <h6>{props.name}'s personality quotient:</h6> 
-          <h6>{Math.round(props.score * 3.14)}</h6>
+          <h6 className={styles.h6}>{props.name}'s personality quotient:</h6> 
+          <h6 className={styles.h6}>{Math.round(props.score * 3.14)}</h6>
         </div>
         <div className={styles.scoreDiv}>
-          <h6>Your personality quotient: </h6>
-          <h6> {Math.round(props.myScore * 3.14)} </h6>
+          <h6 className={styles.h6}>Your personality quotient: </h6>
+          <h6 className={styles.h6}> {Math.round(props.myScore * 3.14)} </h6>
         </div>
         <button onClick={props.closeModal}>Close</button>
       </div>

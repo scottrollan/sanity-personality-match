@@ -13,22 +13,31 @@
 
 #modalContent {
     position: absolute;
-    background: linear-gradient(to bottom, whitesmoke, lightgray);
+    background: linear-gradient(to bottom, whitesmoke, white);
     text-align: center;
     overflow-x: hidden;
     overflow-y: auto;
     height: auto;
     max-height: 92%;
     width: 40%;
-    max-width: 800px;
+    max-width: 920px;
     padding: 20px;
-    /* margin: 4% auto; */
     border-radius: 1em;
     z-index: 99;
+}
+.h6 {
+    margin: 5px 0;
 }
 .scoreDiv {
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
+    justify-content: space-around;
+    align-items: baseline;
     margin: 5px 0;
+}
+
+@media only screen and (max-width: 800px) {
+    #modalContent {
+        width: 90%;
+    }
 }
