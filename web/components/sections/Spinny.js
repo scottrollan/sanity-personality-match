@@ -5,12 +5,12 @@ const Spinny = () => {
     <div id="loading"  className="displayNone">
       <div className="container">
         <div className="message">
+          <h4>Finding your new bff...</h4>
           <img
             className="spinner"
             src="https://cdn.sanity.io/images/ilens9wa/production/e674e4c6993280a3ddc5eb79966ee6125b31cf69-256x256.gif?h=200&fit=max"
             alt="searching..."
           />
-          <h4 className="text">...reticulating splines...</h4>
         </div>
       </div>
       <style jsx>
@@ -42,8 +42,8 @@ const Spinny = () => {
             overflow-y: auto;
             height: auto;
             max-height: 92%;
-            width: 40%;
-            max-width: 920px;
+            width: auto;
+            max-width: 90%;
             padding: 20px;
             border-radius: 1em;
             z-index: 99;

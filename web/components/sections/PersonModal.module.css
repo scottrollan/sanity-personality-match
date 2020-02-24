@@ -13,7 +13,7 @@
 
 #modalContent {
     position: absolute;
-    background: linear-gradient(to bottom, whitesmoke, white);
+    background: #ffffff;
     text-align: center;
     overflow-x: hidden;
     overflow-y: auto;
@@ -25,15 +25,21 @@
     border-radius: 1em;
     z-index: 99;
 }
-.h6 {
-    margin: 5px 0;
-}
 .scoreDiv {
     display: flex;
     flex-direction: row;
-    justify-content: space-around;
+    justify-content: flex-end;
     align-items: baseline;
     margin: 5px 0;
+    padding: 0;
+    text-align: right;
+}
+.scoreLetters {
+    margin: 0 5px;
+}
+.scoreNumbers {
+    align-self: flex-end;
+    margin: 0 20px 0 5px;
 }
 .btn {
     font-size: var(--font-title3-size);

@@ -142,7 +142,10 @@ class TestingPage extends Component {
   }
 
   closeModal = () => {
-    this.setState({ modalDisplay: "none" });
+    this.setState({ 
+      modalDisplay: "none",
+      selectedFile: null
+    });
   };
   render() {
     return (
@@ -170,7 +173,7 @@ class TestingPage extends Component {
           >
             <div className={styles.backMask}></div>
           </div>
-          <p className={styles.heading}>Survey Questions</p>
+          <p className={styles.heading}>Survey Statements</p>
           <form  id="survey" onSubmit={(event) => this.uploadImageHandler(event, this.state.selectedFile)}>
             <div>
               <label htmlFor={styles.name}>
