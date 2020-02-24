@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import styles from "./TestingPage.module.css";
 import TenOptions from "./TenOptions";
 import PersonModal from "./PersonModal";
+import Spinny from './Spinny'
 
 class TestingPage extends Component {
   state = {
@@ -61,15 +62,10 @@ class TestingPage extends Component {
     });
   };
 
-  // handleSubmit(e) {
-  //   e.preventDefault()
-  //   this.uploadImageHandler(e, this.state.selectedFile);
-  //   console.log("handleSubmit fired")
-  // }
-
   uploadImageHandler = (e, blob) => {
     e.preventDefault()
-    console.log("uploadImageHandler fired")
+    const element = document.getElementById("loading");
+    element.classList.remove("displayNone");
     const sanityClient = require("@sanity/client");
     const client = sanityClient({
       projectId: "ilens9wa",
@@ -92,7 +88,6 @@ class TestingPage extends Component {
   };
 
   sendData = (client) => {  
-    console.log("sendData fired")  
     const user = this.state.name
       .replace(/\s+/g, "-")
       .replace(/[^a-zA-Z-]/g, "")
@@ -140,6 +135,9 @@ class TestingPage extends Component {
         }
       })
       this.setState({modalDisplay: 'flex'})
+      document.getElementById("survey").reset(); 
+      const element = document.getElementById("loading");
+      element.classList.add("displayNone");
     })
   }
 
@@ -149,6 +147,7 @@ class TestingPage extends Component {
   render() {
     return (
       <div className={styles.root}>
+        <Spinny/>
         <PersonModal 
             closeModal={this.closeModal} 
             display={this.state.modalDisplay}
@@ -172,7 +171,7 @@ class TestingPage extends Component {
             <div className={styles.backMask}></div>
           </div>
           <p className={styles.heading}>Survey Questions</p>
-          <form  onSubmit={(event) => this.uploadImageHandler(event, this.state.selectedFile)}>
+          <form  id="survey" onSubmit={(event) => this.uploadImageHandler(event, this.state.selectedFile)}>
             <div>
               <label htmlFor={styles.name}>
                 Your First and Last Name
@@ -283,7 +282,7 @@ class TestingPage extends Component {
               name="val10"
             />
             <div>
-            <input type="submit" value="Submit" />
+            <input className={styles.btn} type="submit" value="Submit" />
             </div>
           </form>
         </section>

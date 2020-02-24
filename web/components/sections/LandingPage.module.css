@@ -53,8 +53,8 @@
     color: whitesmoke
 }
 .btn:hover {
-    color: #333333;
-    background-image: linear-gradient(#007bff, #008b77)
+    color: #007bff;
+    background: lightblue;
 
 }
 .api {

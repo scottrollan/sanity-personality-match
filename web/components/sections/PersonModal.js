@@ -22,7 +22,7 @@ const PersonModal = props => {
           <h6 className={styles.h6}>Your personality quotient: </h6>
           <h6 className={styles.h6}> {Math.round(props.myScore * 3.14)} </h6>
         </div>
-        <button onClick={props.closeModal}>Close</button>
+        <button className={styles.btn} onClick={props.closeModal}>Close</button>
       </div>
     </div>
   );
