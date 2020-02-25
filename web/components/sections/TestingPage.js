@@ -2,7 +2,9 @@ import React, { Component } from "react";
 import styles from "./TestingPage.module.css";
 import TenOptions from "./TenOptions";
 import PersonModal from "./PersonModal";
-import Spinny from './Spinny'
+import Spinny from "./Spinny";
+
+console.log(process.env.REACT_APP_PROJECT_TOKEN)
 
 class TestingPage extends Component {
   state = {
@@ -24,11 +26,54 @@ class TestingPage extends Component {
     val9: 0,
     val10: 0,
     modalDisplay: "none",
-    matchName: '',
-    matchTitle: '',
-    matchOrg: '',
-    matchSrc: '',
-    matchScore: 999
+    matchName: "",
+    matchTitle: "",
+    matchOrg: "",
+    matchSrc: "",
+    matchScore: 999,
+    survey: [
+      {
+        statement: "I am not a competitive person",
+        val: "val1"
+      },
+      {
+        statement: "Generally, I enjoy just chatting over having serious conversations.",
+        val: "val2"
+      },
+      {
+        statement: "I am often the life of the party.",
+        val: "val3"
+      },
+      {
+        statement: "I hardly ever worry about what might happen in the future",
+        val: "val4"
+      },
+      {
+        statement:
+          "Generally, I prefer watching videos, tv or movies over more physical activities (like walking, hiking or playing a sport).",
+        val: "val5"
+      },
+      {
+        statement: "I enjoy being the focus of attention in social settings.",
+        val: "val6"
+      },
+      {
+        statement: "Discussing my feelings comes easily to me.",
+        val: "val7"
+      },
+      {
+        statement: "I find it difficult to multi-task",
+        val: "val8"
+      },
+      {
+        statement: "I don't mind sharing personal details with people.",
+        val: "val9"
+      },
+      {
+        statement: "I have a very active imagination.",
+        val: "val10"
+      }
+    ]
   };
 
   changeValueHandler = event => {
@@ -63,7 +108,7 @@ class TestingPage extends Component {
   };
 
   uploadImageHandler = (e, blob) => {
-    e.preventDefault()
+    e.preventDefault();
     const element = document.getElementById("loading");
     element.classList.remove("displayNone");
     const sanityClient = require("@sanity/client");
@@ -87,7 +132,7 @@ class TestingPage extends Component {
       });
   };
 
-  sendData = (client) => {  
+  sendData = client => {
     const user = this.state.name
       .replace(/\s+/g, "-")
       .replace(/[^a-zA-Z-]/g, "")
@@ -109,40 +154,41 @@ class TestingPage extends Component {
 
     client.createOrReplace(doc).then(res => {
       console.log(`Person was created, document ID is ${res._id}`);
-      this.getData(client)
-    });   
+      this.getData(client);
+    });
   };
 
-  getData = (client) => {
-    let x = this.state.score
-    let y = this.state.name
+  getData = client => {
+    let x = this.state.score;
+    let y = this.state.name;
     client.fetch('*[_type == "person"]').then(people => {
       people.forEach(p => {
-        const currentScoreOffset = Math.abs(x - this.state.matchScore)
-        const newScoreOffset = Math.abs(x - p.score)
-        if(currentScoreOffset < newScoreOffset || p.fullName == y){ //if == y, you would be match with an earlier entry of the same user
-          null
-        }else{
-          const srcSplit = p.image.asset._ref.split("-")
-          const src = `${srcSplit[1]}-${srcSplit[2]}.${srcSplit[3]}` //formats '-image-blahblah-400x400-jpg' to 'blahblah-400x400.jpg'
+        const currentScoreOffset = Math.abs(x - this.state.matchScore);
+        const newScoreOffset = Math.abs(x - p.score);
+        if (currentScoreOffset < newScoreOffset || p.fullName == y) {
+          //if == y, you would be match with an earlier entry of the same user
+          null;
+        } else {
+          const srcSplit = p.image.asset._ref.split("-");
+          const src = `${srcSplit[1]}-${srcSplit[2]}.${srcSplit[3]}`; //formats '-image-blahblah-400x400-jpg' to 'blahblah-400x400.jpg'
           this.setState({
             matchName: p.fullName,
             matchOrg: p.organization,
             matchScore: p.score,
             matchSrc: src,
             matchTitle: p.title
-          })
+          });
         }
-      })
-      this.setState({modalDisplay: 'flex'})
-      document.getElementById("survey").reset(); 
+      });
+      this.setState({ modalDisplay: "flex" });
+      document.getElementById("survey").reset();
       const element = document.getElementById("loading");
       element.classList.add("displayNone");
-    })
-  }
+    });
+  };
 
   closeModal = () => {
-    this.setState({ 
+    this.setState({
       modalDisplay: "none",
       selectedFile: null
     });
@@ -150,16 +196,16 @@ class TestingPage extends Component {
   render() {
     return (
       <div className={styles.root}>
-        <Spinny/>
-        <PersonModal 
-            closeModal={this.closeModal} 
-            display={this.state.modalDisplay}
-            name={this.state.matchName}
-            src={this.state.matchSrc}
-            org={this.state.matchOrg}
-            title={this.state.matchTitle}
-            score={this.state.matchScore}
-            myScore={this.state.score} 
+        <Spinny />
+        <PersonModal
+          closeModal={this.closeModal}
+          display={this.state.modalDisplay}
+          name={this.state.matchName}
+          src={this.state.matchSrc}
+          org={this.state.matchOrg}
+          title={this.state.matchTitle}
+          score={this.state.matchScore}
+          myScore={this.state.score}
         />
         <section className={styles.landing}>
           <div
@@ -174,7 +220,10 @@ class TestingPage extends Component {
             <div className={styles.backMask}></div>
           </div>
           <p className={styles.heading}>Survey Statements</p>
-          <form  id="survey" onSubmit={(event) => this.uploadImageHandler(event, this.state.selectedFile)}>
+          <form
+            id="survey"
+            onSubmit={event => this.uploadImageHandler(event, this.state.selectedFile)}
+          >
             <div>
               <label htmlFor={styles.name}>
                 Your First and Last Name
@@ -216,18 +265,24 @@ class TestingPage extends Component {
                 required
                 onChange={() => this.selectImageHandler(event)}
               ></input>
-              {/* <button onClick={() => this.uploadImageHandler(this.state.selectedFile)} required>
-                Upload Image
-              </button> */}
             </label>
             <hr className={styles.break} />
-            <p className={styles.question}>&bull; I am not a competitive person.</p>
-
+            {this.state.survey.map((s, index) =>{
+              return(
+              <span key={index}>
+                <p className={styles.question}>&bull; {s.statement}</p>
+                <TenOptions
+                  changeNumberValueHandler={event => this.changeNumberValueHandler(event)}
+                  name={s.val}
+                />
+              </span>
+              )}
+            )}
+            {/* <p className={styles.question}>&bull; I am not a competitive person.</p>
             <TenOptions
               changeNumberValueHandler={event => this.changeNumberValueHandler(event)}
               name="val1"
             />
-
             <p className={styles.question}>
               &bull; Generally, I enjoy just chatting with others over having serious discussions.
             </p>
@@ -283,9 +338,9 @@ class TestingPage extends Component {
             <TenOptions
               changeNumberValueHandler={() => this.changeNumberValueHandler(event)}
               name="val10"
-            />
+            /> */}
             <div>
-            <input className={styles.btn} type="submit" value="Submit" />
+              <input className={styles.btn} type="submit" value="Submit" />
             </div>
           </form>
         </section>

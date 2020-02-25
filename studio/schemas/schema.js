@@ -10,22 +10,11 @@ import route from './documents/route';
 import siteConfig from './documents/siteConfig';
 import person from './documents/person'
 
-// Object types
-import cta from './objects/cta';
-import embedHTML from './objects/embedHTML';
-import figure from './objects/figure';
-import internalLink from './objects/internalLink';
+
 import landingPage from './objects/landingPage';
-import link from './objects/link';
-import portableText from './objects/portableText';
-import simplePortableText from './objects/simplePortableText';
+
 import testingPage from './objects/testingPage';
 
-// Landing page sections
-import hero from './objects/hero';
-import imageSection from './objects/imageSection';
-import mailchimp from './objects/mailchimp';
-import textSection from './objects/textSection';
 
 // Then we give our schema to the builder and provide the result to Sanity
 export default createSchema({
@@ -33,22 +22,11 @@ export default createSchema({
   // Then proceed to concatenate our our document type
   // to the ones provided by any plugins that are installed
   types: schemaTypes.concat([
-    cta,
-    embedHTML,
-    figure,
-    hero,
-    imageSection,
-    internalLink,
     landingPage,
-    link,
-    mailchimp,
     page,
     person,
-    portableText,
     route,
-    simplePortableText,
     siteConfig,
     testingPage,
-    textSection,
   ]),
 });
