@@ -4,7 +4,6 @@ import TenOptions from "./TenOptions";
 import PersonModal from "./PersonModal";
 import Spinny from "./Spinny";
 
-console.log(process.env.REACT_APP_PROJECT_TOKEN)
 
 class TestingPage extends Component {
   state = {

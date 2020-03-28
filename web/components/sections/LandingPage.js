@@ -19,7 +19,7 @@ function LandingPage() {
           className={styles.api}
           href="https://ilens9wa.api.sanity.io/v1/data/query/production?query=*[_type%20==%20%27person%27]"
         >
-          <h4>API Personality Database</h4>
+          <h5>API Personality Database hosted by Sanity.io</h5>
         </a>
       </div>
     </div>
